@@ -10,6 +10,7 @@ import '../blocs/favorites/favorites_event.dart';
 import '../widgets/product_card.dart';
 import 'product_details_screen.dart';
 import 'package:fakestoreapi_app/screens/favorites_screen.dart';
+import 'cart_screen.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -47,6 +48,15 @@ class _ProductListScreenState extends State<ProductListScreen> {
       appBar: AppBar(
         title: const Text('Products'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CartScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.favorite),
             onPressed: () {
