@@ -1,8 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../models/product_model.dart';
 import 'favorites_event.dart';
 import 'favorites_state.dart';
-import 'package:fakestoreapi_app/models/product_model.dart';
 
 
 
