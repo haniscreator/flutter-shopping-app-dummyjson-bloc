@@ -1,10 +1,11 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'favorites_event.dart';
 import 'favorites_state.dart';
+import '../../models/product_model.dart'; // Assuming you have a Product model
 
 
 
-class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
+class FavoritesBloc extends HydratedBloc<FavoritesEvent, FavoritesState> {
   FavoritesBloc() : super(const FavoritesState(favorites: [])) {
     on<ToggleFavoriteEvent>((event, emit) {
       final isFavorited = state.favorites.any((p) => p.id == event.product.id);
@@ -19,4 +20,21 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       }
     });
   }
+
+
+// HydratedBloc overrides for caching
+@override
+FavoritesState? fromJson(Map<String, dynamic> json) {
+  try{
+    return FavoritesState.fromJson(json);
+  } catch (_) {
+    return null;
+  }
+}
+
+@override
+Map<String, dynamic>? toJson(FavoritesState state) {
+  return state.toJson();
+}
+
 }
