@@ -7,6 +7,7 @@ class CartBloc extends HydratedBloc<CartEvent, CartState> {
   CartBloc() : super(CartState.initial()) {
     on<AddToCartEvent>(_onAddToCart);
     on<RemoveFromCartEvent>(_onRemoveFromCart);
+    on<UpdateCartItemQuantityEvent>(_onUpdateCartItemQuantity);
     on<ClearCartEvent>(_onClearCart);
   }
 
@@ -41,6 +42,23 @@ class CartBloc extends HydratedBloc<CartEvent, CartState> {
       totalItems: _calculateTotalItems(updatedCartItems),
     ));
   }
+
+  void _onUpdateCartItemQuantity(UpdateCartItemQuantityEvent event, Emitter<CartState> emit) {
+  
+  final updatedCartItems = state.cartItems.map((item) {
+    if (item.id == event.productId) {
+      return item.copyWith(quantity: event.quantity);
+    }
+    return item;
+  }).toList();
+
+    emit(state.copyWith(
+      cartItems: updatedCartItems,
+      totalPrice: _calculateTotalPrice(updatedCartItems),
+      totalItems: _calculateTotalItems(updatedCartItems),
+    ));
+  }
+
 
   void _onClearCart(ClearCartEvent event, Emitter<CartState> emit) {
     emit(CartState.initial());
