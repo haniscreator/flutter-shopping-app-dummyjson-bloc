@@ -12,3 +12,12 @@ class SearchQueryChanged extends ProductEvent {
   @override
   List<Object?> get props => [query];
 }
+
+class LoadCategories extends ProductEvent {}
+
+class LoadProductsByCategory extends ProductEvent {
+  final String category;
+
+  LoadProductsByCategory({required this.category});
+}
+

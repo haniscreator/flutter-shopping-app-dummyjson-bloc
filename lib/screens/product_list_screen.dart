@@ -28,7 +28,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     super.initState();
     _searchController = TextEditingController();
     context.read<ProductBloc>().add(LoadInitialProducts());
-
+    context.read<ProductBloc>().add(LoadCategories()); // 👈 Add this line
     _scrollController = ScrollController()
       ..addListener(() {
         if (_scrollController.position.pixels >=
@@ -36,14 +36,23 @@ class _ProductListScreenState extends State<ProductListScreen> {
           context.read<ProductBloc>().add(LoadMoreProducts());
         }
       });
+
+    _loadCategoriesIfNeeded();
   }
 
-@override
-void dispose() {
-  _scrollController.dispose();
-  _searchController.dispose();
-  super.dispose();
-}
+  Future<void> _loadCategoriesIfNeeded() async {
+    final bloc = context.read<ProductBloc>();
+    if (bloc.state.categories.isEmpty) {
+      bloc.add(LoadCategories());
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,44 +82,95 @@ void dispose() {
       ),
       body: BlocBuilder<ProductBloc, ProductState>(
         builder: (context, state) {
+
+          print("🔥 Categories from state: ${state.categories}");
+
           if (state.isLoading && state.products.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
           return Column(
             children: [
+              // 🔍 Search Bar
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TextField(
-                controller: _searchController, // ✅ ADD THIS LINE
-                onChanged: (value) {
-                  context.read<ProductBloc>().add(SearchQueryChanged(value));
-                  setState(() {}); // So the "X" button visibility updates
-                },
-                decoration: InputDecoration(
-                  hintText: 'Search by title or brand',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            context.read<ProductBloc>().add(SearchQueryChanged(''));
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Search products...',
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear),
+                            onPressed: () {
+                              _searchController.clear();
+                              context.read<ProductBloc>().add(SearchQueryChanged(''));
+                              
+                              // 👇 Scroll to top
+                              _scrollController.animateTo(
+                                0.0,
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeOut,
+                              );
+                              
+                              setState(() {});
+                            },
+                          )
+                        : null,
+                    border: const OutlineInputBorder(),
+                  ),
+                  onChanged: (query) {
+                    context.read<ProductBloc>().add(SearchQueryChanged(query));
+                    setState(() {});
+                  },
+                ),
+              ),
+
+              // 🧭 Category Dropdown with Logging
+              // Inside the ProductListScreen widget
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: state.categories.isEmpty
+                    ? const Center(child: Text("No categories loaded"))
+                    : DropdownButtonFormField<String>(
+                        decoration: const InputDecoration(
+                          labelText: 'Filter by category',
+                          border: OutlineInputBorder(),
+                        ),
+                        // Use slug (or other property) for value, e.g., category.slug
+                        value: state.selectedCategory,
+                        items: state.categories.map((category) {
+                          // Assuming category is of type Category and has a 'slug' and 'name'
+                          return DropdownMenuItem<String>(
+                            value: category.slug, // Use the slug here
+                            child: Text(category.name), // Use the name here
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          debugPrint("✅ Category selected: $value");
+                          if (value != null) {
+                            if (value == 'All') {
+                              context.read<ProductBloc>().add(LoadInitialProducts());
+                            } else {
+                              context.read<ProductBloc>().add(
+                                LoadProductsByCategory(category: value),
+                              );
+                            }
+
                             _scrollController.animateTo(
                               0.0,
                               duration: const Duration(milliseconds: 300),
                               curve: Curves.easeOut,
                             );
-                            setState(() {});
-                          },
-                        )
-                      : null,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
+                          }
+                        },
+
+
+                      ),
               ),
-              ),
+
+
+              // 🧱 Product Grid
               Expanded(
                 child: GridView.builder(
                   controller: _scrollController,
@@ -129,7 +189,7 @@ void dispose() {
                       if (state.isLoadingMore) {
                         return const Center(child: CircularProgressIndicator());
                       } else {
-                        return const SizedBox.shrink(); // Nothing more to load
+                        return const SizedBox.shrink();
                       }
                     }
 
@@ -183,5 +243,4 @@ void dispose() {
       ),
     );
   }
-
 }

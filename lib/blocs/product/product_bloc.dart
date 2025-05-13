@@ -3,6 +3,7 @@ import 'product_event.dart';
 import 'product_state.dart';
 import '../../../models/product_model.dart';
 import '../../../repositories/product_repository.dart';
+import '../../../models/category_model.dart';
 
 class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
   final ProductRepository repository;
@@ -14,6 +15,8 @@ class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
     on<LoadInitialProducts>(_onLoadInitialProducts);
     on<LoadMoreProducts>(_onLoadMoreProducts);
     on<SearchQueryChanged>(_onSearchQueryChanged);
+    on<LoadCategories>(_onLoadCategories);
+    on<LoadProductsByCategory>(_onLoadProductsByCategory);
   }
 
   Future<void> _onLoadInitialProducts(
@@ -90,6 +93,42 @@ class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
       ));
     }
   }
+
+  Future<void> _onLoadCategories(
+    LoadCategories event, Emitter<ProductState> emit) async {
+      try {
+        final categories = await repository.fetchCategories();
+
+        // Add "All" category manually at the top
+        final allCategory = Category(slug: 'All', name: 'All', url: '');
+        final updatedCategories = [
+          allCategory,
+          ...categories,
+        ];
+
+        emit(state.copyWith(categories: updatedCategories));
+      } catch (e) {
+        emit(state.copyWith(error: e.toString()));
+      }
+    }
+
+
+  Future<void> _onLoadProductsByCategory(
+      LoadProductsByCategory event, Emitter<ProductState> emit) async {
+    emit(state.copyWith(isLoading: true, selectedCategory: event.category));
+
+    try {
+      final products = await repository.fetchProductsByCategory(event.category);
+      emit(state.copyWith(
+        products: products,
+        isLoading: false,
+        hasReachedEnd: true,
+      ));
+    } catch (_) {
+      emit(state.copyWith(isLoading: false));
+    }
+  }
+
 
   // For HydratedBloc
   @override

@@ -16,7 +16,7 @@ void main() async {
     storageDirectory: await getApplicationDocumentsDirectory(),
   );
   HydratedBloc.storage = storage;
-
+  await HydratedBloc.storage.clear(); // 👈 Add this line temporarily
   final repository = ProductRepository();
 
   runApp(

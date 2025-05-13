@@ -1,5 +1,5 @@
 import '../../../../models/product_model.dart';
-
+import '../../../../models/category_model.dart';
 
 class ProductState {
   final List<Product> products;
@@ -8,12 +8,17 @@ class ProductState {
   final bool isLoadingMore;
   final String? error;
 
+  final List<Category> categories;
+  final String? selectedCategory;
+
   const ProductState({
     required this.products,
     required this.hasReachedEnd,
     required this.isLoading,
     required this.isLoadingMore,
     this.error,
+    required this.categories,
+    this.selectedCategory,
   });
 
   factory ProductState.initial() {
@@ -23,6 +28,8 @@ class ProductState {
       isLoading: false,
       isLoadingMore: false,
       error: null,
+      categories: [],
+      selectedCategory: null,
     );
   }
 
@@ -32,6 +39,8 @@ class ProductState {
     bool? isLoading,
     bool? isLoadingMore,
     String? error,
+    List<Category>? categories,
+    String? selectedCategory,
   }) {
     return ProductState(
       products: products ?? this.products,
@@ -39,6 +48,8 @@ class ProductState {
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       error: error ?? this.error,
+      categories: categories ?? this.categories,
+      selectedCategory: selectedCategory ?? this.selectedCategory,
     );
   }
 
@@ -51,6 +62,10 @@ class ProductState {
       isLoading: map['isLoading'] ?? false,
       isLoadingMore: map['isLoadingMore'] ?? false,
       error: map['error'],
+      categories: (map['categories'] as List<dynamic>)
+          .map((e) => Category.fromJson(e))
+          .toList(),
+      selectedCategory: map['selectedCategory'],
     );
   }
 
@@ -61,11 +76,13 @@ class ProductState {
       'isLoading': isLoading,
       'isLoadingMore': isLoadingMore,
       'error': error,
+      'categories': categories.map((e) => e.toJson()).toList(),
+      'selectedCategory': selectedCategory,
     };
   }
 
   @override
   String toString() {
-    return 'ProductState(products: ${products.length}, hasReachedEnd: $hasReachedEnd, isLoading: $isLoading, isLoadingMore: $isLoadingMore, error: $error)';
+    return 'ProductState(products: ${products.length}, hasReachedEnd: $hasReachedEnd, isLoading: $isLoading, isLoadingMore: $isLoadingMore, error: $error, categories: ${categories.length}, selectedCategory: $selectedCategory)';
   }
 }
