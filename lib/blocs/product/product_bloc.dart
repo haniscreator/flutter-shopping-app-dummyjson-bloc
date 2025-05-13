@@ -7,17 +7,21 @@ import '../../../repositories/product_repository.dart';
 class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
   final ProductRepository repository;
   final int _limit = 6;
+  List<Product> _allProducts = [];
+  String _searchQuery = '';
 
   ProductBloc(this.repository) : super(ProductState.initial()) {
     on<LoadInitialProducts>(_onLoadInitialProducts);
     on<LoadMoreProducts>(_onLoadMoreProducts);
+    on<SearchQueryChanged>(_onSearchQueryChanged);
   }
 
   Future<void> _onLoadInitialProducts(
-      LoadInitialProducts event, Emitter<ProductState> emit) async {
+    LoadInitialProducts event, Emitter<ProductState> emit) async {
     try {
       emit(state.copyWith(isLoading: true, error: null));
       final products = await repository.fetchProducts(limit: _limit, skip: 0);
+      _allProducts = products; // store for filtering
       emit(state.copyWith(
         products: products,
         hasReachedEnd: products.length < _limit,
@@ -31,6 +35,7 @@ class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
       ));
     }
   }
+
 
   Future<void> _onLoadMoreProducts(
       LoadMoreProducts event, Emitter<ProductState> emit) async {
@@ -55,6 +60,33 @@ class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
       emit(state.copyWith(
         isLoadingMore: false,
         error: 'Failed to load more products',
+      ));
+    }
+  }
+
+  void _onSearchQueryChanged(SearchQueryChanged event, Emitter<ProductState> emit) async {
+    _searchQuery = event.query.trim();
+
+    if (_searchQuery.isEmpty) {
+      // Reload initial products if search cleared
+      add(LoadInitialProducts());
+      return;
+    }
+
+    emit(state.copyWith(isLoading: true, error: null));
+
+    try {
+      final searchedProducts = await repository.searchProducts(_searchQuery);
+
+      emit(state.copyWith(
+        products: searchedProducts,
+        isLoading: false,
+        hasReachedEnd: true,
+      ));
+    } catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        error: 'Failed to search products',
       ));
     }
   }

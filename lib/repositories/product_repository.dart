@@ -21,4 +21,17 @@ class ProductRepository {
     }
   }
 
+  Future<List<Product>> searchProducts(String query) async {
+    final url = Uri.parse('https://dummyjson.com/products/search?q=$query');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final products = data['products'] as List;
+      return products.map((e) => Product.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to search products');
+    }
+  }
+
 }
