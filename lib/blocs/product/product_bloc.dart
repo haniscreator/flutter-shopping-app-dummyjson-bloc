@@ -3,17 +3,19 @@ import 'product_event.dart';
 import 'product_state.dart';
 import '../../../models/product_model.dart';
 import '../../../repositories/product_repository.dart';
+import '../../../repositories/category_repository.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 
 
 class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
   final ProductRepository repository;
+  final CategoryRepository catRepository;
   final int _limit = 6;
   List<Product> _allProducts = [];
   String _searchQuery = '';
 
-  ProductBloc(this.repository) : super(ProductState.initial()) {
+  ProductBloc(this.repository, this.catRepository) : super(ProductState.initial()) {
     on<LoadInitialProducts>(_onLoadInitialProducts);
     on<LoadMoreProducts>(_onLoadMoreProducts);
     on<SearchQueryChanged>(_onSearchQueryChanged);
@@ -125,7 +127,7 @@ class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
     emit(state.copyWith(isLoading: true, selectedCategory: event.category));
 
     try {
-      final products = await repository.fetchProductsByCategory(event.category);
+      final products = await catRepository.fetchProductsByCategory(event.category);
       emit(state.copyWith(
         products: products,
         isLoading: false,

@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'blocs/product/product_bloc.dart';
 import 'repositories/product_repository.dart';
+import 'repositories/category_repository.dart';
 import 'screens/product_list_screen.dart';
 import 'blocs/product/product_event.dart';
 import 'blocs/favorites/favorites_bloc.dart';
@@ -21,17 +22,17 @@ void main() async {
   HydratedBloc.storage = storage;
 
   final repository = ProductRepository();
-
+  final catRepository = CategoryRepository();
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (_) => ProductBloc(repository)..add(LoadInitialProducts()),
+          create: (_) => ProductBloc(repository, catRepository)..add(LoadInitialProducts()),
         ),
         BlocProvider(create: (_) => FavoritesBloc()),
         BlocProvider(create: (_) => CartBloc()),
         BlocProvider(
-          create: (_) => CategoryBloc(repository: repository)..add(LoadCategories()),
+          create: (_) => CategoryBloc(repository: catRepository)..add(LoadCategories()),
 
         ),
       ],

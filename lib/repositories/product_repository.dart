@@ -35,6 +35,7 @@ class ProductRepository {
     }
   }
 
+  /*
   Future<List<Category>> fetchCategories() async {
     final response = await http.get(Uri.parse('https://dummyjson.com/products/categories'));
     
@@ -58,5 +59,6 @@ class ProductRepository {
       throw Exception('Failed to load products by category');
     }
   }
+  */
 
 }
