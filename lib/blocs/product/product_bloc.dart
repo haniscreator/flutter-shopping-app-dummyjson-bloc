@@ -3,7 +3,9 @@ import 'product_event.dart';
 import 'product_state.dart';
 import '../../../models/product_model.dart';
 import '../../../repositories/product_repository.dart';
-import '../../../models/category_model.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
+
 
 class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
   final ProductRepository repository;
@@ -21,24 +23,47 @@ class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
 
   Future<void> _onLoadInitialProducts(
     LoadInitialProducts event, Emitter<ProductState> emit) async {
+    
+    emit(state.copyWith(isLoading: true, error: null));
+
+    if (!await isOnline()) {
+      if (state.products.isNotEmpty) {
+        emit(state.copyWith(
+          isLoading: false,
+          error: 'No internet. Showing cached data.',
+        ));
+      } else {
+        emit(state.copyWith(
+          isLoading: false,
+          error: 'No internet connection.',
+        ));
+      }
+      return;
+    }
+
     try {
-      emit(state.copyWith(isLoading: true, error: null));
       final products = await repository.fetchProducts(limit: _limit, skip: 0);
-      _allProducts = products; // store for filtering
+      _allProducts = products;
       emit(state.copyWith(
         products: products,
         hasReachedEnd: products.length < _limit,
         isLoading: false,
       ));
     } catch (e) {
-      emit(state.copyWith(
-        products: [],
-        isLoading: false,
-        error: 'Failed to load products',
-      ));
+      if (state.products.isNotEmpty) {
+        emit(state.copyWith(
+          isLoading: false,
+          error: 'Failed to update. Showing cached products.',
+        ));
+      } else {
+        emit(state.copyWith(
+          products: [],
+          isLoading: false,
+          error: 'Failed to load products.',
+        ));
+      }
     }
   }
-
 
   Future<void> _onLoadMoreProducts(
       LoadMoreProducts event, Emitter<ProductState> emit) async {
@@ -125,5 +150,10 @@ class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
   @override
   Map<String, dynamic>? toJson(ProductState state) {
     return state.toMap();
+  }
+
+  Future<bool> isOnline() async {
+    final result = await Connectivity().checkConnectivity();
+    return result != ConnectivityResult.none;
   }
 }

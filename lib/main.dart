@@ -19,7 +19,6 @@ void main() async {
     storageDirectory: await getApplicationDocumentsDirectory(),
   );
   HydratedBloc.storage = storage;
-  await HydratedBloc.storage.clear(); // 👈 Optional: remove after testing
 
   final repository = ProductRepository();
 
