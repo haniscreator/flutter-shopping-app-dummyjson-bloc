@@ -15,7 +15,7 @@ class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
     on<LoadInitialProducts>(_onLoadInitialProducts);
     on<LoadMoreProducts>(_onLoadMoreProducts);
     on<SearchQueryChanged>(_onSearchQueryChanged);
-    on<LoadCategories>(_onLoadCategories);
+    //on<LoadCategories>(_onLoadCategories);
     on<LoadProductsByCategory>(_onLoadProductsByCategory);
   }
 
@@ -93,24 +93,6 @@ class ProductBloc extends HydratedBloc<ProductEvent, ProductState> {
       ));
     }
   }
-
-  Future<void> _onLoadCategories(
-    LoadCategories event, Emitter<ProductState> emit) async {
-      try {
-        final categories = await repository.fetchCategories();
-
-        // Add "All" category manually at the top
-        final allCategory = Category(slug: 'All', name: 'All', url: '');
-        final updatedCategories = [
-          allCategory,
-          ...categories,
-        ];
-
-        emit(state.copyWith(categories: updatedCategories));
-      } catch (e) {
-        emit(state.copyWith(error: e.toString()));
-      }
-    }
 
 
   Future<void> _onLoadProductsByCategory(

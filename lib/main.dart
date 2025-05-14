@@ -9,6 +9,9 @@ import 'screens/product_list_screen.dart';
 import 'blocs/product/product_event.dart';
 import 'blocs/favorites/favorites_bloc.dart';
 import 'blocs/cart/cart_bloc.dart'; // ✅ Add this import
+import 'blocs/category/category_bloc.dart'; // ✅ Add this
+import 'blocs/category/category_event.dart'; // ✅ Add this if using LoadCategories
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +19,8 @@ void main() async {
     storageDirectory: await getApplicationDocumentsDirectory(),
   );
   HydratedBloc.storage = storage;
-  await HydratedBloc.storage.clear(); // 👈 Add this line temporarily
+  await HydratedBloc.storage.clear(); // 👈 Optional: remove after testing
+
   final repository = ProductRepository();
 
   runApp(
@@ -26,22 +30,24 @@ void main() async {
           create: (_) => ProductBloc(repository)..add(LoadInitialProducts()),
         ),
         BlocProvider(create: (_) => FavoritesBloc()),
-        BlocProvider(create: (_) => CartBloc()), // ✅ Add CartBloc here
+        BlocProvider(create: (_) => CartBloc()),
+        BlocProvider(
+          create: (_) => CategoryBloc(repository: repository)..add(LoadCategories()),
+
+        ),
       ],
-      child: MyApp(repository: repository),
+      child: const MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  final ProductRepository repository;
-
-  const MyApp({super.key, required this.repository});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const ProductListScreen(), // ✅ No need to wrap again in ProductBloc
+      home: const ProductListScreen(),
       debugShowCheckedModeBanner: false,
     );
   }
