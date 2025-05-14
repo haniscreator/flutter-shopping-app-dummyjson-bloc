@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../models/product_model.dart';
 
 class ProductCard extends StatelessWidget {
@@ -13,7 +14,13 @@ class ProductCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: Image.network(product.thumbnail, fit: BoxFit.cover, width: double.infinity),
+            child: CachedNetworkImage(
+              imageUrl: product.thumbnail,
+              placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+              errorWidget: (context, url, error) => Icon(Icons.error),
+              fit: BoxFit.cover,
+              width: double.infinity,
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
