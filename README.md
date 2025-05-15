@@ -30,7 +30,7 @@ This project follows a clean and modular architecture:
 - **Models**: Strongly typed Dart models for product, category, cart item, etc.
 
 
-### 📁 Folder Structure
+## 📁 Folder Structure
 
 ```
 lib/
@@ -54,7 +54,7 @@ lib/
 ```
 
 
-### 📦 Packages Used
+## 📦 Packages Used
 
 | Package                | Description                                                                 |
 |------------------------|-----------------------------------------------------------------------------|
