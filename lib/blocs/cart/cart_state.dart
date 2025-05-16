@@ -1,4 +1,3 @@
-import 'dart:convert';
 import '../../models/cart_item_model.dart';
 
 class CartState {

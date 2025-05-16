@@ -1,7 +1,6 @@
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'favorites_event.dart';
 import 'favorites_state.dart';
-import '../../models/product_model.dart'; // Assuming you have a Product model
 
 
 

@@ -12,11 +12,11 @@ class CartBloc extends HydratedBloc<CartEvent, CartState> {
   }
 
   void _onAddToCart(AddToCartEvent event, Emitter<CartState> emit) {
-    final existingItemIndex =
-        state.cartItems.indexWhere((item) => item.id == event.item.id);
+    final existingItemIndex = state.cartItems.indexWhere((item) => item.id == event.item.id);//Cart ထဲမှာ ရှိနေပြီလား? ဆိုတာ စစ်ဖို့ //မရှိဘူးဆိုရင် -1
     final updatedCartItems = List<CartItem>.from(state.cartItems);
 
     if (existingItemIndex != -1) {
+      //ရှိပီးသားဆိုရင်
       final existingItem = updatedCartItems[existingItemIndex];
       updatedCartItems[existingItemIndex] = existingItem.copyWith(
         quantity: existingItem.quantity + event.item.quantity,
@@ -65,6 +65,7 @@ class CartBloc extends HydratedBloc<CartEvent, CartState> {
   }
 
   double _calculateTotalPrice(List<CartItem> items) {
+    //List ထဲက item တစ်ခုချင်းစီရဲ့ totalPrice ကို total နဲ့ပေါင်း
     return items.fold(0.0, (total, item) => total + item.totalPrice);
   }
 

@@ -42,10 +42,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
         }
       });
 
-    _loadCategoriesIfNeeded();
+    _loadCategoriesIfNeeded();  
   }
 
   Future<void> _loadCategoriesIfNeeded() async {
+    // Data ရှိရင် Caache ကပြမယ် မရှိရင်တော့ API ကနေဆွဲမယ်
     final bloc = context.read<CategoryBloc>();
     if (bloc.state.categories.isEmpty) {
       bloc.add(LoadCategories());
@@ -103,24 +104,24 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     child: TextField(
                       controller: _searchController,
                       decoration: InputDecoration(
-                        hintText: 'Search products...',
-                        prefixIcon: const Icon(Icons.search),
-                        suffixIcon: _searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  context.read<ProductBloc>().add(SearchQueryChanged(''));
-                                  _scrollController.animateTo(
-                                    0.0,
-                                    duration: const Duration(milliseconds: 300),
-                                    curve: Curves.easeOut,
-                                  );
-                                  setState(() {});
-                                },
-                              )
-                            : null,
-                        border: const OutlineInputBorder(),
+                      hintText: 'Search products...',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _searchController.clear();
+                                context.read<ProductBloc>().add(SearchQueryChanged(''));
+                                _scrollController.animateTo(
+                                  0.0,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeOut,
+                                );
+                                setState(() {});
+                              },
+                            )
+                          : null,
+                      border: const OutlineInputBorder(),
                       ),
                       onChanged: (query) {
                         context.read<ProductBloc>().add(SearchQueryChanged(query));
@@ -177,10 +178,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
                           ? productState.products.length
                           : productState.products.length + 1,
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 2 / 3,
-                        mainAxisSpacing: 8,
-                        crossAxisSpacing: 8,
+                        crossAxisCount: 2, //column (item) ၂
+                        childAspectRatio: 2 / 3, //For Card Design
+                        mainAxisSpacing: 8, //vertical (အပေါ်အောက်) spacing 
+                        crossAxisSpacing: 8, //Column item တွေကြားမှာ 8 pixels ( horizontal )
                       ),
                       itemBuilder: (context, index) {
                         if (index >= productState.products.length) {

@@ -37,7 +37,7 @@ class CartScreen extends StatelessWidget {
                       subtitle: Text(
                         'Quantity: ${item.quantity} × \$${item.price.toStringAsFixed(2)}',
                       ),
-                      trailing: Row(
+                      trailing: Row( //ListTile ရဲ့ ညာဘက်အဆုံး (end) မှာ ပြသဖို့ 
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
